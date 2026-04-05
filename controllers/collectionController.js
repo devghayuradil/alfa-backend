@@ -1,5 +1,6 @@
 import slugify from "slugify";
 import collectionModel from "../models/collectionModel.js";
+import productModel from "../models/productModel.js";
 
 const createCollectionController = async (req, res) => {
   try {
@@ -78,7 +79,7 @@ const updateCollectionController = async (req, res) => {
     const collection = await collectionModel.findOneAndUpdate(
       { slug },
       { name, slug: slugify(name, { strict: true, lower: true }) },
-      { new: true }
+      { new: true },
     );
 
     if (!collection) {
@@ -90,7 +91,7 @@ const updateCollectionController = async (req, res) => {
     return res.status(200).send({
       success: true,
       message: "Collection Updated successfully.",
-      collection
+      collection,
     });
   } catch (error) {
     console.log(`updateCollectionController Error: ${error}`);
@@ -105,10 +106,11 @@ const updateCollectionController = async (req, res) => {
 const getCollectionsController = async (req, res) => {
   try {
     const collections = await collectionModel.find({});
-    if (!collections) {
+    console.log(collections,"collections");
+    if (collections.length === 0) {
       return res
         .status(404)
-        .send({ success: false, message: "No collections Found" });
+        .send({ success: false, message: "No collections Found", collections });
     }
     return res.status(201).send({
       success: true,
@@ -125,9 +127,52 @@ const getCollectionsController = async (req, res) => {
   }
 };
 
+const getProductsByCollectionController = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res
+        .status(400)
+        .send({ success: false, message: "slug is required." });
+    }
+    const collection = await collectionModel.findOne({ slug });
+
+    if (!collection) {
+      return res
+        .status(404)
+        .send({ success: false, message: "No collection Found" });
+    }
+
+    const products = await productModel
+      .find({ collection: collection._id })
+      .populate("collection", "name slug");
+
+    if (!products || products.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message: "No products found for this collection.",
+      });
+    }
+    return res.status(200).send({
+      success: true,
+      message: "Products fetched successfully.",
+      products,
+    });
+  } catch (error) {
+    console.log(`getProductsByCollectionController Error: ${error}`);
+    return res.status(400).send({
+      success: false,
+      message: "getProductsByCollectionController Error",
+      error,
+    });
+  }
+};
+
 export {
   createCollectionController,
   deleteCollectionController,
   updateCollectionController,
   getCollectionsController,
+  getProductsByCollectionController,
 };

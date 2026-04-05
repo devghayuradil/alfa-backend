@@ -83,10 +83,10 @@ const getProductController = async (req, res) => {
       .populate("user", "name")
       .populate("collection", "name");
 
-    if (!products) {
+    if (products.length === 0) {
       return res
         .status(404)
-        .send({ success: false, message: "No Products Found" });
+        .send({ success: false, message: "No Products Found", products });
     }
 
     res.status(200).send({

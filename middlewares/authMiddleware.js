@@ -27,6 +27,7 @@ const isAuthorized = async (req, res, next) => {
 const isAdmin = async (req, res, next) => {
   try {
     const { user } = req;
+    console.log(user,"user");
     if (!user || user.role !== 1) {
       return res.status(401).send({
         success: false,

@@ -73,13 +73,12 @@ const loginController = async (req, res) => {
     user.password = undefined;
 
     return res
-      .cookie("token", token, { httpOnly: true, secure: true })
+      .cookie("token", token, { httpOnly: true, secure: false, sameSite: "none" })
       .status(200)
       .send({
         success: true,
         message: "User Logged In successfully",
         user,
-        token,
       });
   } catch (error) {
     console.log(`loginController Error: ${error}`);
@@ -123,9 +122,25 @@ const allUsersController = async (req, res) => {
   }
 };
 
+const meController = (req, res) => {
+  try {
+    return res.status(200).send({
+      success: true,
+      message: "User fetched successfully",
+      user: req.user,
+    });
+  } catch (error) {
+    console.log(`meController Error: ${error}`);
+    return res
+      .status(400)
+      .send({ success: false, message: "meController Error", error });
+  }
+};
+
 export {
   registerController,
   loginController,
   logoutController,
   allUsersController,
+  meController
 };

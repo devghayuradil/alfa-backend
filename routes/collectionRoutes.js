@@ -4,34 +4,35 @@ import {
   createCollectionController,
   deleteCollectionController,
   getCollectionsController,
+  getProductsByCollectionController,
   updateCollectionController,
 } from "../controllers/collectionController.js";
 
 const collectionRouter = express.Router();
 
-collectionRouter.get("/all", getCollectionsController);
+// get Products by collection
+//localhost:8000/api/v1/collections/:collection - GET
+collectionRouter.get("/:slug", getProductsByCollectionController);
+
+// only for collections
+collectionRouter.get("/", getCollectionsController);
 
 // Admin Routes
 //localhost:8000/api/v1/collections/ - POST
-collectionRouter.post(
-  "/",
-  isAuthorized,
-  isAdmin,
-  createCollectionController
-);
+collectionRouter.post("/", isAuthorized, isAdmin, createCollectionController);
 //localhost:8000/api/v1/collections/:slug - DELETE
 collectionRouter.delete(
   "/:slug",
   isAuthorized,
   isAdmin,
-  deleteCollectionController
+  deleteCollectionController,
 );
 //localhost:8000/api/v1/collections/:slug - UPDATE
 collectionRouter.put(
   "/:slug",
   isAuthorized,
   isAdmin,
-  updateCollectionController
+  updateCollectionController,
 );
 
 export default collectionRouter;
